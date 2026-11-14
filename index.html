@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sankhyan Gen.Store – Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF8E5;--w:#FFFFFF;--card:#FFFFFF;--sand:#FFE9A8;--ln:#1B1B1B;--tx:#1B1B1B;--tx2:#5C5648;--y:#FFC933;--ink:#1B1B1B;--brand:#1B1B1B;--ch:#1B1B1B;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16120A;--w:#201A0D;--card:#2A2212;--sand:#3A2F12;--ln:#FFC933;--tx:#FFF3CC;--tx2:#CDBF94;--brand:#FFF3CC;--ch:#0C0A05}}
+:root[data-theme="dark"]{--bg:#16120A;--w:#201A0D;--card:#2A2212;--sand:#3A2F12;--ln:#FFC933;--tx:#FFF3CC;--tx2:#CDBF94;--brand:#FFF3CC;--ch:#0C0A05}
+html{scroll-padding-top:110px;scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.6 Hind,system-ui,sans-serif}
+h1,h2,h3{font-family:'Baloo 2',Hind,sans-serif;line-height:1.1;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(2.4rem,8vw,4.4rem);font-weight:800;color:#1B1B1B}
+h2{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:0}a{color:inherit;text-decoration:none}
+.wrap{max-width:1160px;margin:0 auto;padding:0 18px}
+section{padding:56px 0}
+.sub{color:var(--tx2);max-width:56ch;margin-top:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:99px;font:600 1rem Hind,sans-serif;border:2px solid #1B1B1B;background:var(--y);color:#1B1B1B;box-shadow:3px 3px 0 #1B1B1B;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1B1B1B}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #1B1B1B}
+.btn.o,.btn.w{background:var(--card);color:var(--tx);border-color:var(--ln);box-shadow:3px 3px 0 var(--ln)}
+.sv .btn,.ct .btn,.dc.el .btn,footer .btn{box-shadow:3px 3px 0 #FFF8E5;border-color:#1B1B1B}
+.ct .btn.w{background:#fff;color:#1B1B1B}
+:focus-visible{outline:3px solid #FF5C8A;outline-offset:2px}
+header{position:sticky;top:0;z-index:20;background:var(--w);border-bottom:2px solid var(--ln)}
+.hr{display:flex;align-items:center;gap:10px;padding:10px 0}
+.logo{display:flex;align-items:center;gap:9px;margin-right:auto}
+.lgb{border:0;background:none;padding:0;cursor:pointer;line-height:0;border-radius:14px}
+.lg{--lit:0;--bulb:#f3e6cc;width:46px;height:46px;transition:transform .25s}
+.lg.on,.lgb:hover .lg{--lit:1;--bulb:#ffd166}
+.lgb:active .lg{transform:scale(.92) rotate(-4deg)}
+.lt{font:800 1.2rem/1 'Baloo 2',sans-serif;color:var(--brand)}
+.lt small{display:block;font:500 .68rem Hind;color:var(--tx2);margin-top:2px}
+.lang{display:flex;border:2px solid var(--ln);border-radius:99px;overflow:hidden}
+.lang button{border:0;background:none;color:var(--tx);padding:6px 11px;font:600 .9rem Hind;cursor:pointer;min-height:34px}
+.lang button[aria-pressed=true]{background:var(--y);color:#1B1B1B}
+.hr .btn{min-height:38px;padding:0 16px;font-size:.92rem}
+nav{display:flex;gap:4px;overflow-x:auto;padding:0 0 8px;scrollbar-width:none}
+nav a{white-space:nowrap;padding:6px 13px;border-radius:99px;font-weight:600;font-size:.95rem;color:var(--tx)}
+nav a:hover{background:var(--y);color:#1B1B1B}
+.mq{background:#1B1B1B;color:#FFC933;overflow:hidden;white-space:nowrap;padding:9px 0;font:700 1rem 'Baloo 2',sans-serif}
+.mq div{display:inline-block;animation:mq 26s linear infinite}
+@keyframes mq{to{transform:translateX(-50%)}}
+.hero{position:relative;padding:36px 0 78px;background:var(--y);color:#1B1B1B}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:30px;background:radial-gradient(circle at 24px 0,#FFC933 23px,transparent 24px) repeat-x;background-size:48px 30px;transform:translateY(100%)}
+.hg{display:grid;gap:30px;align-items:center}
+.hero p.lead{font-size:1.15rem;margin-top:14px;max-width:46ch;color:#3b3320}
+.hero .hi{display:inline-block;font:700 1.1rem 'Baloo 2',Hind;background:#fff;border:2px solid #1B1B1B;border-radius:99px;padding:2px 16px;margin-top:14px;transform:rotate(-1.5deg)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.hero .btn:not(.o){background:#1B1B1B;color:#FFC933}
+.hero .btn.o{background:#fff;color:#1B1B1B;border-color:#1B1B1B;box-shadow:3px 3px 0 #1B1B1B}
+.shelf{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:62px;gap:12px}
+.t{border-radius:24px;border:2px solid #1B1B1B;box-shadow:4px 4px 0 #1B1B1B;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;font:700 .82rem Hind;color:#1B1B1B;position:relative;overflow:hidden}
+.t svg{position:absolute;inset:6px 6px 26px;width:calc(100% - 12px);height:calc(100% - 32px)}
+.t1{grid-column:span 3;grid-row:span 3;background:#FFD9B0;transform:rotate(-1.5deg)}
+.t2{grid-column:span 3;grid-row:span 2;background:#FFF1B8;transform:rotate(1.5deg)}
+.t3{grid-column:span 3;grid-row:span 2;background:#FFC4D4;transform:rotate(-1deg)}
+.t4{grid-column:span 2;grid-row:span 2;background:#D9C9FF;transform:rotate(1.5deg)}
+.t5{grid-column:span 2;grid-row:span 2;background:#CFEBFF;transform:rotate(-1.5deg)}
+.t6{grid-column:span 2;grid-row:span 2;background:#1B1B1B;color:#fff;transform:rotate(1deg)}
+.note{font-size:.78rem;color:#3b3320;margin-top:14px}
+@media(min-width:860px){.hg{grid-template-columns:1.05fr 1fr}.shelf{grid-auto-rows:70px}}
+.dep{display:grid;gap:18px;margin-top:26px}
+@media(min-width:760px){.dep{grid-template-columns:1fr 1fr}}
+.dc{border-radius:36px;border:2px solid var(--ln);box-shadow:5px 5px 0 var(--ln);padding:28px;min-height:300px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.dc.gs{background:var(--y);color:#1B1B1B;border-color:#1B1B1B;box-shadow:5px 5px 0 #1B1B1B}
+.dc.el{background:#1B1B1B;color:#fff;border-color:#FFC933;box-shadow:5px 5px 0 #FFC933}
+.dc svg{position:absolute;top:14px;right:16px;width:150px;height:150px}
+.dc p{margin:8px 0 18px;max-width:34ch}
+.dc .tag{font:700 .85rem Hind;margin-bottom:6px}
+.cat{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px}
+@media(min-width:760px){.cat{grid-template-columns:repeat(4,1fr)}}
+.cc{background:var(--card);border:2px solid var(--ln);border-radius:26px;box-shadow:4px 4px 0 var(--ln);overflow:hidden;transition:transform .15s}
+.cc:hover{transform:translateY(-3px) rotate(-.6deg)}
+.ph{aspect-ratio:4/3;display:grid;place-items:center;position:relative;border-bottom:2px solid var(--ln)}
+.ph svg{width:70%;height:86%}
+.cc h3{font-size:1rem;padding:10px 14px 12px}
+.sea{background:var(--y);border:2px solid #1B1B1B;box-shadow:5px 5px 0 #1B1B1B;border-radius:36px;padding:28px;margin-top:22px;display:grid;gap:18px;color:#1B1B1B}
+@media(min-width:760px){.sea{grid-template-columns:1.2fr 1fr;align-items:center}}
+.sea .btn{background:#1B1B1B;color:#FFC933}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{background:#fff;border:2px solid #1B1B1B;color:#1B1B1B;border-radius:99px;padding:4px 14px;font-weight:600}
+.sv{background:var(--ch);color:#fff;border-radius:40px;margin:0 8px}
+.sv .sub{color:#d9cfae}
+.sg{display:grid;gap:14px;margin-top:24px}
+@media(min-width:640px){.sg{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:960px){.sg{grid-template-columns:repeat(3,1fr)}}
+.sc{border:2px solid #FFC933;border-radius:24px;padding:18px;background:#262012}
+.sc h3{color:#FFC933}
+.sc p{color:#d9cfae;font-size:.93rem;margin-top:4px}
+.sv .btn{margin-top:24px}
+.wg{display:grid;gap:14px;margin-top:22px}
+@media(min-width:760px){.wg{grid-template-columns:repeat(3,1fr)}}
+.wy{background:var(--card);border:2px solid var(--ln);border-radius:26px;box-shadow:4px 4px 0 var(--ln);padding:20px}
+.wy p{color:var(--tx2);font-size:.93rem;margin-top:4px}
+.ab{display:grid;gap:22px}
+@media(min-width:760px){.ab{grid-template-columns:1fr 1fr;align-items:center}}
+.box{background:var(--y);border:2px solid #1B1B1B;box-shadow:5px 5px 0 #1B1B1B;border-radius:40px;aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#1B1B1B}
+.box .lg{width:150px;height:150px}
+.box small{color:#1B1B1B;font-weight:600}
+.ct{background:var(--ch);color:#fff;border-radius:40px;margin:56px 8px 0}
+.ct .sub{color:#d9cfae}
+.cg2{display:grid;gap:22px;margin-top:22px}
+@media(min-width:760px){.cg2{grid-template-columns:1fr 1fr}}
+.ph-list{display:grid;gap:10px}
+.ph-list a{display:flex;justify-content:space-between;align-items:center;background:#262012;border:2px solid #FFC933;border-radius:99px;padding:10px 20px;font:700 1.1rem 'Baloo 2'}
+.ph-list a:hover{background:#FFC933;color:#1B1B1B}
+.ph-list a span{font:500 .85rem Hind;opacity:.85}
+footer{background:var(--bg);color:var(--tx);padding:44px 0 28px;font-size:.92rem}
+.fg{display:grid;gap:22px}
+@media(min-width:760px){.fg{grid-template-columns:1.4fr 1fr 1fr 1fr}}
+footer h4{margin:0 0 8px;font:800 1rem 'Baloo 2'}
+footer a{display:block;padding:2px 0}
+footer .lt{color:var(--brand)}
+.cp{margin-top:26px;padding-top:16px;border-top:2px solid var(--ln);font-size:.82rem}
+.fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30}
+@media(min-width:860px){.fab{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.lg,.btn,.cc{transition:none}.mq div{animation:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="logo" viewBox="0 0 64 64">
+<rect width="64" height="64" rx="16" fill="#1B1B1B"/>
+<g style="opacity:var(--lit);transition:opacity .3s"><circle cx="32" cy="40" r="19" fill="#ffd166" opacity=".28"/>
+<g stroke="#ffd166" stroke-width="2" stroke-linecap="round"><path d="M32 14v-3M16 22l-2-2M48 22l2-2M11 40h-3M53 40h3"/></g></g>
+<path d="M8 14h48l3 13a6 6 0 0 1-10 3 6 6 0 0 1-9 0 6 6 0 0 1-9 0 6 6 0 0 1-9 0 6 6 0 0 1-10-3z" fill="#F6EEDF"/>
+<path d="M14 14l-3 13a6 6 0 0 0 5 3zM26 14l-3 16a6 6 0 0 0 5 0zM38 14l1 16a6 6 0 0 0 5 0zM50 14l3 13a6 6 0 0 1-5 3z" fill="#D9892B" opacity=".9"/>
+<circle cx="32" cy="43" r="10" style="fill:var(--bulb);transition:fill .3s"/>
+<rect x="28" y="52" width="8" height="5" rx="1.5" fill="#F6EEDF"/>
+<path d="M28 44c1-3 3 3 4 0s3 3 4 0" fill="none" stroke="#D9892B" stroke-width="1.6" stroke-linecap="round"/>
+</symbol>
+<symbol id="stat" viewBox="0 0 100 100"><rect x="20" y="12" width="50" height="76" rx="5" fill="#D9572B"/><rect x="20" y="12" width="9" height="76" rx="3" fill="#A83D1A"/><rect x="38" y="28" width="26" height="18" rx="2" fill="#FFF3E0"/><path d="M38 58h26M38 66h20" stroke="#FFF3E0" stroke-width="3" opacity=".6"/><g transform="rotate(28 72 55)"><rect x="66" y="14" width="12" height="62" fill="#F2B53A"/><rect x="66" y="8" width="12" height="8" rx="2" fill="#E68AA0"/><path d="M66 76h12l-6 14z" fill="#F3D9B1"/><path d="M69.5 83h5L72 90z" fill="#333"/></g></symbol>
+<symbol id="snack" viewBox="0 0 100 100"><path d="M24 14l6 4 6-4 6 4 6-4 6 4 6-4 6 4v66l-6 4-6-4-6 4-6-4-6 4-6-4-6 4-6-4z" fill="#E8A33A"/><circle cx="50" cy="46" r="18" fill="#C8372D"/><circle cx="50" cy="46" r="11" fill="#F5D18A"/><path d="M34 76h32" stroke="#fff" stroke-width="3" opacity=".7"/><circle cx="82" cy="78" r="9" fill="#C98A4B"/><circle cx="79" cy="75" r="1.5" fill="#7a4a1e"/><circle cx="85" cy="80" r="1.5" fill="#7a4a1e"/></symbol>
+<symbol id="cosm" viewBox="0 0 100 100"><rect x="22" y="56" width="22" height="30" rx="3" fill="#2B2B2B"/><rect x="22" y="48" width="22" height="9" fill="#D4A94C"/><path d="M25 48V28l8-8 8 8v20z" fill="#C2185B"/><rect x="62" y="58" width="22" height="28" rx="6" fill="#E84A7F"/><rect x="67" y="40" width="12" height="18" rx="2" fill="#222"/><rect x="66" y="64" width="6" height="16" rx="3" fill="#fff" opacity=".35"/></symbol>
+<symbol id="mani" viewBox="0 0 100 100"><circle cx="38" cy="58" r="26" fill="none" stroke="#D9572B" stroke-width="7"/><circle cx="62" cy="50" r="26" fill="none" stroke="#E8A33A" stroke-width="7"/><circle cx="50" cy="62" r="20" fill="none" stroke="#7A2E6E" stroke-width="6"/><circle cx="50" cy="16" r="5" fill="#C8372D"/><path d="M80 80l10-8M80 74l10 8" stroke="#D4A94C" stroke-width="3"/></symbol>
+<symbol id="tea" viewBox="0 0 100 100"><path d="M22 42h48v16a24 24 0 0 1-48 0z" fill="#FBF6EC" stroke="#8A5A2B" stroke-width="3"/><path d="M70 48h6a8 8 0 0 1 0 16h-8" fill="none" stroke="#8A5A2B" stroke-width="3"/><ellipse cx="46" cy="42" rx="24" ry="4" fill="#A35A22"/><ellipse cx="46" cy="86" rx="34" ry="6" fill="#C9A67A"/><path d="M36 30c-4-6 4-8 0-14M50 30c-4-6 4-8 0-14M62 30c-4-6 4-8 0-14" fill="none" stroke="#8A5A2B" stroke-width="2.5" stroke-linecap="round" opacity=".6"/></symbol>
+<symbol id="daily" viewBox="0 0 100 100"><rect x="30" y="38" width="40" height="50" rx="8" fill="#5AA6C9"/><rect x="44" y="24" width="12" height="14" fill="#2F6F8F"/><path d="M44 24h22v6" fill="none" stroke="#2F6F8F" stroke-width="5"/><rect x="36" y="52" width="28" height="22" rx="3" fill="#fff" opacity=".9"/><circle cx="50" cy="63" r="5" fill="#5AA6C9"/></symbol>
+<symbol id="season" viewBox="0 0 100 100"><g stroke-width="4" stroke-linecap="round"><path d="M50 40V10" stroke="#E8A33A"/><path d="M50 40L24 22" stroke="#C8372D"/><path d="M50 40L76 22" stroke="#7A2E6E"/><path d="M50 40L14 44" stroke="#2F9E6E"/><path d="M50 40L86 44" stroke="#D9572B"/></g><circle cx="50" cy="40" r="5" fill="#fff"/><path d="M14 90c4-26 16-30 36-30s32 4 36 30z" fill="#E84A7F"/><path d="M30 90c2-14 8-18 20-18s18 4 20 18z" fill="#F2B53A"/></symbol>
+<symbol id="bulb" viewBox="0 0 100 100"><circle cx="50" cy="40" r="26" fill="#FFE27A"/><path d="M40 62h20v8H40z" fill="#C8CDD2"/><rect x="40" y="70" width="20" height="14" rx="3" fill="#8A9096"/><path d="M42 44c2-8 6 4 8-2s6 6 8-2" fill="none" stroke="#D9892B" stroke-width="2.5" stroke-linecap="round"/><path d="M50 8V2M22 18l-4-4M78 18l4-4M12 40H6M94 40h-6" stroke="#FFD166" stroke-width="3" stroke-linecap="round"/></symbol>
+<symbol id="tube" viewBox="0 0 100 100"><rect x="14" y="43" width="72" height="14" rx="7" fill="#F4F7FA" stroke="#9AA3AB" stroke-width="2"/><rect x="8" y="40" width="9" height="20" rx="2" fill="#777"/><rect x="83" y="40" width="9" height="20" rx="2" fill="#777"/><path d="M26 49h48" stroke="#fff" stroke-width="3" opacity=".9"/><path d="M30 38v-10M50 38V24M70 38v-10" stroke="#FFD166" stroke-width="3" stroke-linecap="round"/></symbol>
+<symbol id="plug" viewBox="0 0 100 100"><path d="M50 8v14" stroke="#555" stroke-width="5" stroke-linecap="round"/><rect x="28" y="22" width="44" height="36" rx="8" fill="#2B2B2B"/><rect x="38" y="58" width="7" height="22" rx="2" fill="#C8CDD2"/><rect x="55" y="58" width="7" height="22" rx="2" fill="#C8CDD2"/><rect x="38" y="32" width="24" height="6" rx="3" fill="#D9892B"/></symbol>
+<symbol id="switch" viewBox="0 0 100 100"><rect x="26" y="10" width="48" height="80" rx="8" fill="#F3F0E8" stroke="#CFC8B8" stroke-width="2"/><rect x="38" y="24" width="24" height="52" rx="5" fill="#E0DACB"/><rect x="42" y="28" width="16" height="22" rx="3" fill="#fff"/><circle cx="50" cy="63" r="3" fill="#D9892B"/><circle cx="32" cy="16" r="1.8" fill="#9a9384"/><circle cx="68" cy="84" r="1.8" fill="#9a9384"/></symbol>
+<symbol id="fan" viewBox="0 0 100 100"><g fill="#A98B62"><ellipse cx="50" cy="26" rx="10" ry="20"/><ellipse cx="50" cy="26" rx="10" ry="20" transform="rotate(120 50 50)"/><ellipse cx="50" cy="26" rx="10" ry="20" transform="rotate(240 50 50)"/></g><circle cx="50" cy="50" r="9" fill="#2A2420"/><circle cx="50" cy="50" r="3.5" fill="#D9892B"/></symbol>
+</defs></svg>
+
+<header><div class="wrap">
+<div class="hr">
+<div class="logo"><button class="lgb" aria-label="Switch the shop light on or off"><svg class="lg" viewBox="0 0 64 64"><use href="#logo"/></svg></button><a class="lt" href="#home">Sankhyan Gen.Store<small data-hi="जनरल स्टोर और इलेक्ट्रिकल्स">General Store &amp; Electricals</small></a></div>
+<div class="lang" role="group" aria-label="Language"><button id="en" aria-pressed="true">EN</button><button id="hi" aria-pressed="false">हिं</button></div>
+<a class="btn" href="tel:+917876330529" data-hi="अभी कॉल करें">Call now</a>
+</div>
+<nav aria-label="Main">
+<a href="#home" data-hi="होम">Home</a><a href="#general" data-hi="जनरल स्टोर">General Store</a><a href="#electricals" data-hi="इलेक्ट्रिकल्स">Electricals</a><a href="#services" data-hi="इलेक्ट्रिकल सेवाएँ">Electrical Services</a><a href="#seasonal" data-hi="त्योहार संग्रह">Seasonal Collection</a><a href="#about" data-hi="हमारे बारे में">About Us</a><a href="#contact" data-hi="संपर्क करें">Contact Us</a>
+</nav></div></header>
+
+<main id="home">
+<div class="mq" aria-hidden="true"><div>Stationery ✦ Maniari ✦ Snacks ✦ Cosmetics ✦ Tea ✦ Festival ✦ Electricals ✦ Wiring ✦ Stationery ✦ Maniari ✦ Snacks ✦ Cosmetics ✦ Tea ✦ Festival ✦ Electricals ✦ Wiring ✦ </div></div>
+<div class="hero"><div class="wrap hg">
+<div>
+<h1 data-hi="आपकी हर ज़रूरत, एक ही जगह!">Everything You Need, All in One Place!</h1>
+<p class="lead" data-hi="स्टेशनरी, स्नैक्स, कॉस्मेटिक्स, रोज़मर्रा का सामान और इलेक्ट्रिकल उत्पादों के लिए आपकी अपनी पड़ोस की दुकान।">Your neighbourhood destination for stationery, snacks, cosmetics, daily essentials and electrical products.</p>
+<p class="hi">आपकी रोज़मर्रा की ज़रूरतों के लिए एक भरोसेमंद दुकान।</p>
+<div class="cta"><a class="btn" href="#general" data-hi="जनरल स्टोर">General Store</a><a class="btn o" href="#electricals" data-hi="इलेक्ट्रिकल्स">Electricals</a><a class="btn o" href="tel:+917876330529" data-hi="अभी कॉल करें">Call now</a></div>
+</div>
+<div>
+<div class="shelf" aria-hidden="true">
+<div class="t t1"><svg viewBox="0 0 100 100"><use href="#stat"/></svg><span data-hi="स्टेशनरी">Stationery</span></div>
+<div class="t t2"><svg viewBox="0 0 100 100"><use href="#snack"/></svg><span data-hi="स्नैक्स और बिस्कुट">Snacks &amp; biscuits</span></div>
+<div class="t t3"><svg viewBox="0 0 100 100"><use href="#cosm"/></svg><span data-hi="कॉस्मेटिक्स">Cosmetics</span></div>
+<div class="t t4"><svg viewBox="0 0 100 100"><use href="#mani"/></svg><span data-hi="मनिहारी">Maniari</span></div>
+<div class="t t5"><svg viewBox="0 0 100 100"><use href="#tea"/></svg><span data-hi="चाय">Tea</span></div>
+<div class="t t6"><svg viewBox="0 0 100 100"><use href="#bulb"/></svg><span data-hi="इलेक्ट्रिकल्स">Electricals</span></div>
+</div>
+<p class="note" data-hi="डिज़ाइन उदाहरण: ये चित्र नमूने हैं। इनकी जगह दुकान की असली फ़ोटो लगाई जाएँगी।">Design example: these are illustrations. Real photos of the shop’s products will replace them.</p>
+</div></div></div>
+
+<section><div class="wrap">
+<h2 data-hi="हमारे दो विभाग">Two departments, one store</h2>
+<p class="sub" data-hi="एक ही नाम और एक ही जगह पर रोज़ का सामान और इलेक्ट्रिकल समाधान।">Everyday products and electrical solutions under one name, at one address.</p>
+<div class="dep">
+<article class="dc gs"><svg viewBox="0 0 100 100"><use href="#snack"/></svg><span class="tag" data-hi="जनरल स्टोर">General Store</span><h2 data-hi="रोज़मर्रा का ज़रूरी सामान">Everyday Essentials</h2><p data-hi="स्टेशनरी, स्नैक्स, कॉस्मेटिक्स, मनिहारी, चाय और रोज़मर्रा की ज़रूरत की चीज़ें देखें।">Explore stationery, snacks, cosmetics, maniari, tea and everyday essentials.</p><a class="btn w" href="#general" data-hi="सामान देखें">Browse products</a></article>
+<article class="dc el"><svg viewBox="0 0 100 100"><use href="#bulb"/></svg><span class="tag" data-hi="इलेक्ट्रिकल्स और उपकरण">Electricals &amp; Appliances</span><h2 data-hi="इलेक्ट्रिकल समाधान">Electrical Solutions</h2><p data-hi="इलेक्ट्रिकल उत्पाद, लाइटिंग, उपकरण और पेशेवर इलेक्ट्रिकल सेवाएँ खोजें।">Discover electrical products, lighting, appliances and professional electrical services.</p><a class="btn" href="#electricals" data-hi="सामान देखें">Browse products</a></article>
+</div></div></section>
+
+<section id="general" style="padding-top:8px"><div class="wrap">
+<h2 data-hi="जनरल स्टोर की श्रेणियाँ">General Store categories</h2>
+<div class="cat" id="gcat"></div></div></section>
+
+<section id="electricals" style="padding-top:8px"><div class="wrap">
+<h2 data-hi="इलेक्ट्रिकल श्रेणियाँ">Electrical categories</h2>
+<div class="cat" id="ecat"></div></div></section>
+
+<section id="seasonal"><div class="wrap">
+<h2 data-hi="त्योहार संग्रह">Seasonal collection</h2>
+<div class="sea">
+<div><h3 style="font-size:1.6rem" data-hi="हर त्योहार के लिए तैयार">Ready for every festival</h3><p style="margin:8px 0 16px" data-hi="यह हिस्सा साल भर बदलता रहेगा: होली से दिवाली तक।">This section changes through the year, from Holi to Diwali.</p><a class="btn" href="tel:+917876330529" data-hi="पूछने के लिए कॉल करें">Call to enquire</a></div>
+<div><svg viewBox="0 0 100 100" style="width:100%;max-width:200px;height:170px;display:block;margin:0 auto 12px"><use href="#season"/></svg><div class="chips"><span data-hi="होली के रंग">Holi colours</span><span data-hi="दिवाली के पटाखे">Diwali crackers</span><span data-hi="त्योहारी सामान">Festival essentials</span><span data-hi="मौसमी सामान">Seasonal products</span></div></div>
+</div></div></section>
+
+<section class="sv" id="services"><div class="wrap">
+<h2 data-hi="इलेक्ट्रिकल सेवाएँ">Electrical services</h2>
+<p class="sub" data-hi="उत्पाद, ऑर्डर और सेवाएँ, सब एक ही जगह।">Products, orders and services from the same counter.</p>
+<div class="sg">
+<div class="sc"><h3 data-hi="इलेक्ट्रिकल उत्पादों की बिक्री">Electrical product sales</h3><p data-hi="दुकान में उपलब्ध लाइट, स्विच और उपकरण।">Lights, switches and appliances available in the shop.</p></div>
+<div class="sc"><h3 data-hi="विशेष ऑर्डर">Special orders</h3><p data-hi="जो सामान दुकान में नहीं है, उसे ऑर्डर पर मँगवाया जा सकता है।">Products not in stock can be arranged on order.</p></div>
+<div class="sc"><h3 data-hi="घर में इलेक्ट्रिकल इंस्टॉलेशन">Home electrical installation</h3><p data-hi="घर के लिए इलेक्ट्रिकल इंस्टॉलेशन।">Electrical installation for your home.</p></div>
+<div class="sc"><h3 data-hi="इलेक्ट्रिकल वायरिंग">Electrical wiring</h3><p data-hi="घर की वायरिंग का काम।">Wiring work for homes.</p></div>
+<div class="sc"><h3 data-hi="उपकरण की मरम्मत">Appliance repair</h3><p data-hi="इलेक्ट्रिकल उपकरणों की मरम्मत।">Repair of electrical appliances.</p></div>
+<div class="sc"><h3 data-hi="इलेक्ट्रिकल सलाह">Electrical consultation</h3><p data-hi="अपनी ज़रूरत के बारे में दुकान से सलाह लें।">Talk to the shop about what you need.</p></div>
+</div>
+<a class="btn" href="tel:+917876330529" data-hi="अभी पूछें">Enquire now</a>
+</div></section>
+
+<section><div class="wrap">
+<h2 data-hi="हमें क्यों चुनें">Why shop with us</h2>
+<div class="wg">
+<div class="wy"><h3 data-hi="पास में, सुविधाजनक">Convenient and local</h3><p data-hi="रोज़ की ज़रूरत का सामान अपने इलाके में।">Everyday needs, close to home.</p></div>
+<div class="wy"><h3 data-hi="कई श्रेणियाँ, एक दुकान">Many categories, one shop</h3><p data-hi="स्टेशनरी से इलेक्ट्रिकल तक।">From stationery to electricals.</p></div>
+<div class="wy"><h3 data-hi="सीधे दुकान से बात">Talk to the shop directly</h3><p data-hi="कॉल करें और सामान या सेवा के बारे में पूछें।">Call and ask about any product or service.</p></div>
+</div></div></section>
+
+<section id="about" style="background:var(--w)"><div class="wrap ab">
+<div><h2 data-hi="हमारे बारे में">About Sankhyan Gen.Store</h2><p class="sub" style="max-width:52ch" data-hi="संख्यान जनरल स्टोर भदरोग, कलरी (हिमाचल प्रदेश) की एक स्थानीय दुकान है। यहाँ दो विभाग हैं: रोज़मर्रा के सामान का जनरल स्टोर और इलेक्ट्रिकल उत्पाद व सेवाएँ। सब कुछ एक ही जगह।">Sankhyan Gen.Store is a local business in Bhadrog, Kalri, Himachal Pradesh. It has two departments: a general store for everyday products, and an electricals department for products and services. Both are at one location.</p></div>
+<div class="box"><button class="lgb" aria-label="Switch the shop light on or off"><svg class="lg" viewBox="0 0 64 64"><use href="#logo"/></svg></button><small data-hi="बल्ब जलाने के लिए लोगो पर टैप करें">Tap the logo to switch the light on</small></div>
+</div></section>
+
+<section class="ct" id="contact"><div class="wrap">
+<h2 data-hi="संपर्क करें">Call or visit us</h2>
+<p class="sub" data-hi="भदरोग, कलरी, हिमाचल प्रदेश 174021, भारत। खुलने का समय पुष्टि के बाद जोड़ा जाएगा।">Bhadrog, Kalri, Himachal Pradesh 174021, India. Opening hours will be added once confirmed.</p>
+<div class="cg2">
+<div class="ph-list">
+<a href="tel:+917876330529">7876330529<span data-hi="कॉल करें">Call</span></a>
+<a href="tel:+919471651795">9471651795<span data-hi="कॉल करें">Call</span></a>
+<a href="tel:+919418278395">09418278395<span data-hi="कॉल करें">Call</span></a>
+</div>
+<div><a class="btn w" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Sankhyan+Gen.Store+Bhadrog+Kalri+Himachal+Pradesh+174021" data-hi="दिशा-निर्देश (गूगल मैप्स)">Get directions on Google Maps</a></div>
+</div></div></section>
+</main>
+
+<footer><div class="wrap">
+<div class="fg">
+<div><div class="logo" style="margin-bottom:10px"><button class="lgb" aria-label="Switch the shop light on or off"><svg class="lg" viewBox="0 0 64 64"><use href="#logo"/></svg></button><span class="lt">Sankhyan Gen.Store</span></div><p data-hi="भदरोग, कलरी की आपकी अपनी पड़ोस की दुकान।">Your neighbourhood store in Bhadrog, Kalri.</p></div>
+<div><h4 data-hi="जल्दी जाएँ">Quick links</h4><a href="#home" data-hi="होम">Home</a><a href="#services" data-hi="इलेक्ट्रिकल सेवाएँ">Electrical Services</a><a href="#seasonal" data-hi="त्योहार संग्रह">Seasonal Collection</a><a href="#about" data-hi="हमारे बारे में">About Us</a></div>
+<div><h4 data-hi="जनरल स्टोर">General Store</h4><a href="#general" data-hi="स्टेशनरी">Stationery</a><a href="#general" data-hi="मनिहारी">Maniari</a><a href="#general" data-hi="स्नैक्स और बिस्कुट">Snacks &amp; Biscuits</a><a href="#general" data-hi="कॉस्मेटिक्स">Cosmetics</a></div>
+<div><h4 data-hi="इलेक्ट्रिकल्स">Electricals</h4><a href="#electricals" data-hi="एलईडी बल्ब">LED Bulbs</a><a href="#electricals" data-hi="स्विच और सॉकेट">Switches &amp; Sockets</a><a href="tel:+917876330529">7876330529</a></div>
+</div>
+<p class="cp">© 2026 Sankhyan Gen.Store. <span data-hi="सर्वाधिकार सुरक्षित।">All rights reserved.</span></p>
+</div></footer>
+<a class="btn fab" href="tel:+917876330529" data-hi="कॉल करें">Call</a>
+
+<script>
+(function(){
+var S=function(s){return '<svg viewBox="0 0 100 100" aria-hidden="true"><use href="#'+s+'"/></svg>'};
+var G=[['Stationery','स्टेशनरी','stat','#F2D7B0'],['Maniari','मनिहारी','mani','#E9D3E0'],['Snacks &amp; Biscuits','स्नैक्स और बिस्कुट','snack','#F7E2A8'],['Cosmetics','कॉस्मेटिक्स','cosm','#F3C9BB'],['Tea &amp; Beverages','चाय और पेय','tea','#DCCBB0'],['Daily Needs','रोज़मर्रा का सामान','daily','#D5E3EA'],['Seasonal Products','त्योहारी सामान','season','#F3DDB3']];
+var E=[['LED Bulbs','एलईडी बल्ब','bulb','#EDE3D0'],['Tube Lights','ट्यूब लाइट','tube','#E6E0D4'],['Electrical Accessories','इलेक्ट्रिकल एक्सेसरीज़','plug','#E9DFCB'],['Switches &amp; Sockets','स्विच और सॉकेट','switch','#E2DACB'],['Appliances','उपकरण','fan','#EADFC9']];
+function cc(a){return '<div class="cc"><div class="ph" style="background:'+a[3]+'">'+S(a[2])+'</div><h3 data-hi="'+a[1]+'">'+a[0]+'</h3></div>'}
+document.getElementById('gcat').innerHTML=G.map(cc).join('');
+document.getElementById('ecat').innerHTML=E.map(cc).join('');
+var els=document.querySelectorAll('[data-hi]');
+els.forEach(function(e){e.setAttribute('data-en',e.innerHTML)});
+function set(l){
+document.documentElement.lang=l;
+els.forEach(function(e){e.innerHTML=e.getAttribute(l==='hi'?'data-hi':'data-en')});
+document.getElementById('en').setAttribute('aria-pressed',l==='en');
+document.getElementById('hi').setAttribute('aria-pressed',l==='hi');
+try{localStorage.setItem('lang',l)}catch(x){}
+}
+document.getElementById('en').onclick=function(){set('en')};
+document.getElementById('hi').onclick=function(){set('hi')};
+try{if(localStorage.getItem('lang')==='hi')set('hi')}catch(x){}
+var on=false;
+document.querySelectorAll('.lgb').forEach(function(b){b.onclick=function(){on=!on;document.querySelectorAll('.lg').forEach(function(s){s.classList.toggle('on',on)})}});
+})();
+</script>
+</body>
+</html>
